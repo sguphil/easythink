@@ -23,21 +23,35 @@ class CommonController extends Controller {
 	/**
 	 * 判断用户是否已经登陆
 	 */
-	final public function check_admin() {
-		if(CONTROLLER_NAME =='Index' && in_array(ACTION_NAME, array('login', 'code')) ) {
+	final public function check_admin()
+	{
+		if (CONTROLLER_NAME == 'Index' && in_array(ACTION_NAME, array('login', 'code'))) {
 			return true;
 		}
-		if(!session('userid') || !session('roleid')){
-			//针对iframe加载返回
-			if(IS_GET && strpos(ACTION_NAME,'_iframe') !== false){
-				exit('<style type="text/css">body{margin:0;padding:0}a{color:#08c;text-decoration:none}a:hover,a:focus{color:#005580;text-decoration:underline}a:focus,a:hover,a:active{outline:0}</style><div style="padding:6px;font-size:12px">请先<a target="_parent" href="'.U('Index/login').'">登录</a>后台管理</div>');
-			}
-			if(IS_AJAX && IS_GET){
-				exit('<div style="padding:6px">请先<a href="'.U('Index/login').'">登录</a>后台管理</div>');
-			}else {
-				$this->error('请先登录后台管理', U('Index/login'));
-			}
+		if (session('userid') && session('roleid')) {
+			return true;
 		}
+
+		$username = cookie('username');
+		$password = cookie('password');
+		$admin_db = D('Admin');
+		if($admin_db->login($username, $password, $info)){
+			session('userid', $info['userid']);
+			session('roleid', $info['roleid']);
+			return true;
+		}
+
+
+		//针对iframe加载返回
+		if (IS_GET && strpos(ACTION_NAME, '_iframe') !== false) {
+			exit('<style type="text/css">body{margin:0;padding:0}a{color:#08c;text-decoration:none}a:hover,a:focus{color:#005580;text-decoration:underline}a:focus,a:hover,a:active{outline:0}</style><div style="padding:6px;font-size:12px">请先<a target="_parent" href="' . U('Index/login') . '">登录</a>后台管理</div>');
+		}
+		if (IS_AJAX && IS_GET) {
+			exit('<div style="padding:6px">请先<a href="' . U('Index/login') . '">登录</a>后台管理</div>');
+		} else {
+			$this->error('请先登录后台管理', U('Index/login'));
+		}
+
 	}
 	
 	/**

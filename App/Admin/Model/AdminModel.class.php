@@ -10,7 +10,7 @@ class AdminModel extends Model{
 	/**
 	 * 登录验证
 	 */
-	public function login($username, $password){
+	public function login($username, $password, &$info){
 	    $times_db = M('times');
 	    
         //查询帐号
@@ -50,11 +50,8 @@ class AdminModel extends Model{
         
         $times_db->where(array('username'=>$username))->delete();
         $this->where(array('userid'=>$r['userid']))->save(array('lastloginip'=>$ip,'lastlogintime'=>time()));
-        
-        session('userid', $r['userid']);
-        session('roleid', $r['roleid']);
-        cookie('username', $username);
-        cookie('userid', $r['userid']);
+
+        $info = $r;
         
         return true;
 	}

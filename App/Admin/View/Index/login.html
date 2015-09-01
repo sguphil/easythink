@@ -6,8 +6,8 @@
 <title><{:C('SYSTEM_NAME')}> - 用户登录</title>
 <include file="Common:head"/>
 <style type="text/css">
-form{width:280px;height:120px;margin:30px auto 0;}
-form div label{float:left;display:block;width:65px;font-size:16px;padding-top:6px;}
+form{width:350px;height:120px;margin:30px auto 0;}
+form div label{float:left;display:block;width:100px;font-size:16px;padding-top:6px;}
 form div{margin:8px auto;}
 form div.input input{height:21px;padding:2px 3px;}
 form div.input img{cursor:pointer}
@@ -20,35 +20,34 @@ form div.input img{cursor:pointer}
 	<form id='form' method="post">
 		<div class="input">
 			<label for="username">用户名:</label>  
-	        <input type="text" name="username" id="username" value="wangdong" />  
+	        <input type="text" name="username" id="username" value="<{:cookie('username')}>"/>
 		</div>
 		<div class="input">
-			<label for="password">密&nbsp;&nbsp;码:</label>  
-	        <input type="password" name="password" id="password" value="wangdong" />  
+			<label for="password">密&nbsp;&nbsp;码:</label>
+			<input type="password" name="password" id="password" />
 		</div>
 		<div class="input">
 			<label for="code">验证码:</label>  
 	        <input type="text" name="code" id="code" size="4" />
 	        <span style="margin-left:10px"><img id="code_img" align="top" onclick="changeCode()" src="<{:U('Index/code?code_len=4&font_size=14&width=100&height=28&code='.time())}>" title="点击切换验证码"></span> 
 		</div>
+		<div class="input">
+			<label for="savepwd">自动登陆:</label>
+			<input type="checkbox" name="savepwd" id="savepwd" />
+		</div>
 	</form> 
 </div>
 
 </div>
 <script type="text/javascript">
-$(function(){
-	$('input:text:first').focus();
-	$('form').keyup(function(event){
-		if(event.keyCode ==13){
-			login();
-		}
-	});
-})
+
 var changeCode = function(){
 	var that = document.getElementById('code_img');
 	that.src = that.src + '&' + Math.random();
 }
+
 var login = function(){
+
 	if(!$('#username').val()){
 		$.messager.alert('提示信息', '请填写用户名', 'error');
 		return false;
@@ -61,6 +60,7 @@ var login = function(){
 		$.messager.alert('提示信息', '请填写验证码', 'error');
 		return false;
 	}
+
 	$.post('<{:U('Index/login?dosubmit=1')}>', $("form").serialize(), function(data){
 		if(!data.status){
 			$.messager.alert('提示信息', data.info, 'error');

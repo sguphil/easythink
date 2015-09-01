@@ -27,6 +27,7 @@ class IndexController extends CommonController {
 	 * 用户登录
 	 */
     public function login(){
+
     	if (I('get.dosubmit')){
             $admin_db = D('Admin');
             
@@ -34,9 +35,21 @@ class IndexController extends CommonController {
 			$password = I('post.password', '', 'trim') ? I('post.password', '', 'trim') : $this->error('密码不能为空', HTTP_REFERER);
 			//验证码判断
 			$code = I('post.code', '', 'trim') ? I('post.code', '', 'trim') : $this->error('请输入验证码', HTTP_REFERER);
-			if(!check_verify($code, 'admin')) $this->error('验证码错误！', HTTP_REFERER);
-			
-			if($admin_db->login($username, $password)){
+			if(!check_verify($code, 'admin')) {
+				$this->error('验证码错误！', HTTP_REFERER);
+			}
+
+			if($admin_db->login($username, $password, $info)){
+				session('userid', $info['userid']);
+				session('roleid', $info['roleid']);
+				$save_time = 3600 * 7 * 24;
+
+				cookie('username', $username, $save_time);
+				if(I('post.savepwd')) {
+					cookie('password', $password, $save_time);
+				} else {
+					cookie('password', null);
+				}
 			    $this->success('登录成功', U('Index/index'));
 			}else{
 			    $this->error($admin_db->error, HTTP_REFERER);
@@ -52,8 +65,7 @@ class IndexController extends CommonController {
     public function logout() {
 		session('userid', null);
 		session('roleid', null);
-		cookie('username', null);
-		cookie('userid', null);
+		cookie('password', null);
 		
 		$this->success('安全退出！', U('Index/login'));
 	}
